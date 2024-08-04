@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lighthouse Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        h1, h2 { color: #2c3e50; }
+        .report-container { display: flex; flex-wrap: wrap; justify-content: space-between; }
+        .metrics-comparison, .current-scores, .comparison-table { width: 48%; }
+        .score { display: flex; align-items: center; margin-bottom: 10px; }
+        .score-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-weight: bold; font-size: 18px; }
+        .score-label { font-size: 16px; font-weight: bold; }
+        .good { background-color: #0cce6b; color: white; }
+        .average { background-color: #ffa400; color: white; }
+        .poor { background-color: #ff4e42; color: white; }
+        .diff-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        .diff-table th, .diff-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .diff-table th { background-color: #f2f2f2; }
+        #metricsChart { width: 100%; height: 100%; }
+        .chart-container { height: 100%; display: flex; flex-direction: column; }
+        .time-note {
+            font-style: italic;
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lighthouse Report</h1>
+    <p class="time-note">All times are in Indian Standard Time (IST)</p>
+    <div class="report-container">
+        <div class="current-scores">
+            <h2>Current Scores</h2>
+            <% for (const [key, value] of Object.entries(report.scores)) { %>
+                <div class="score">
+                    <div class="score-circle <%= getScoreClass(value) %>">
+                        <%= Math.round(value) %>
+                    </div>
+                    <span class="score-label"><%= key.charAt(0).toUpperCase() + key.slice(1) %></span>
+                </div>
+            <% } %>
+        </div>
+        <div class="metrics-comparison">
+            <h2>Metrics Comparison</h2>
+            <div class="chart-container">
+                <canvas id="metricsChart"></canvas>
+            </div>
+        </div>
+        <div class="comparison-table">
+            <h2>Comparison with Latest 5 Reports</h2>
+            <% if (comparisonData && comparisonData.length > 0) { %>
+                <table class="diff-table">
+                    <tr>
+                        <th>Report Date (IST)</th>
+                        <th>Performance</th>
+                        <th>Accessibility</th>
+                        <th>SEO</th>
+                        <th>Best Practices</th>
+                    </tr>
+                    <% for (const report of comparisonData) { %>
+                        <tr>
+                            <td><%= formatDateToIST(report.timestamp) %></td>
+                            <td><%= (report.scores?.performance || 0).toFixed(2) %></td>
+                            <td><%= (report.scores?.accessibility || 0).toFixed(2) %></td>
+                            <td><%= (report.scores?.seo || 0).toFixed(2) %></td>
+                            <td><%= (report.scores?.bestPractices || 0).toFixed(2) %></td>
+                        </tr>
+                    <% } %>
+                </table>
+            <% } else { %>
+                <p>No previous reports available for comparison.</p>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('metricsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: <%- JSON.stringify(chartData) %>,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                }
+            }
+        });
+
+        // Adjust chart height to match comparison table
+        function adjustChartHeight() {
+            const comparisonTable = document.querySelector('.comparison-table');
+            const chartContainer = document.querySelector('.chart-container');
+            if (comparisonTable && chartContainer) {
+                chartContainer.style.height = `${comparisonTable.offsetHeight}px`;
+            }
+        }
+
+        // Run on load and resize
+        window.addEventListener('load', adjustChartHeight);
+        window.addEventListener('resize', adjustChartHeight);
+    </script>
+</body>
+</html>
