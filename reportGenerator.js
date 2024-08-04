@@ -57,7 +57,7 @@ export async function generateReports(url, report, comparisonData) {
 
   const latestReports = comparisonData.slice(0, 5); // Get only the latest 5 reports
   const chartData = generateChartData(latestReports);
-  const templatePath = path.join(process.cwd(), 'templates', 'report.ejs');
+  const templatePath = path.join(import.meta.dirname, 'templates', 'report.ejs');
   const template = await fs.readFile(templatePath, 'utf-8');
   const htmlContent = ejs.render(template, { 
     report, 
