@@ -1,3 +1,5 @@
+#!/usr/bin/env bun
+
 import { Command } from 'commander';
 import { runLighthouse } from './lighthouseRunner.js';
 import { generateReports } from './reportGenerator.js';

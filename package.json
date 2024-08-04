@@ -1,7 +1,6 @@
 {
   "name": "foghorn",
   "module": "index.js",
-  "type": "module",
   "version": "1.0.0",
   "description": "A CLI tool to generate, compare, and analyze Lighthouse reports, ideal for performance tracking and CI/CD integration",
   "author": "Sonal Priya",
