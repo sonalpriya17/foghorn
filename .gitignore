@@ -177,3 +177,4 @@ dist
 
 # Test output directory
 test-output/
+lighthouse-test-output/
