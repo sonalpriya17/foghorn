@@ -42,14 +42,35 @@
     <div class="report-container">
         <div class="current-scores">
             <h2>Current Scores</h2>
-            <% for (const [key, value] of Object.entries(report.scores)) { %>
+            
                 <div class="score">
-                    <div class="score-circle <%= getScoreClass(value) %>">
-                        <%= Math.round(value) %>
+                    <div class="score-circle poor">
+                        48
                     </div>
-                    <span class="score-label"><%= key.charAt(0).toUpperCase() + key.slice(1) %></span>
+                    <span class="score-label">Performance</span>
                 </div>
-            <% } %>
+            
+                <div class="score">
+                    <div class="score-circle average">
+                        55
+                    </div>
+                    <span class="score-label">Accessibility</span>
+                </div>
+            
+                <div class="score">
+                    <div class="score-circle average">
+                        83
+                    </div>
+                    <span class="score-label">Seo</span>
+                </div>
+            
+                <div class="score">
+                    <div class="score-circle average">
+                        82
+                    </div>
+                    <span class="score-label">BestPractices</span>
+                </div>
+            
         </div>
         <div class="metrics-comparison">
             <h2>Metrics Comparison</h2>
@@ -59,7 +80,7 @@
         </div>
         <div class="card comparison-table">
             <h2>Comparison with Latest Reports</h2>
-            <% if (comparisonData && comparisonData.length > 0) { %>
+            
                 <table class="diff-table">
                     <tr>
                         <th>Date (IST)</th>
@@ -68,20 +89,18 @@
                         <th>SEO</th>
                         <th>Best Practices</th>
                     </tr>
-                    <% for (let i = 0; i < Math.min(comparisonData.length, 5); i++) { %>
-                        <% const report = comparisonData[i]; %>
+                    
+                        
                         <tr>
-                            <td><%= formatDateToIST(report.timestamp) %></td>
-                            <td><%= (report.scores?.performance || 0).toFixed(2) %></td>
-                            <td><%= (report.scores?.accessibility || 0).toFixed(2) %></td>
-                            <td><%= (report.scores?.seo || 0).toFixed(2) %></td>
-                            <td><%= (report.scores?.bestPractices || 0).toFixed(2) %></td>
+                            <td>09 Aug, 06:39 pm</td>
+                            <td>48.00</td>
+                            <td>55.00</td>
+                            <td>83.00</td>
+                            <td>82.00</td>
                         </tr>
-                    <% } %>
+                    
                 </table>
-            <% } else { %>
-                <p>No reports available for comparison.</p>
-            <% } %>
+            
         </div>
     </div>
 
@@ -89,7 +108,7 @@
         const ctx = document.getElementById('metricsChart').getContext('2d');
         new Chart(ctx, {
             type: 'bar',
-            data: <%- JSON.stringify(chartData) %>,
+            data: {"labels":["09 Aug, 06:39 pm"],"datasets":[{"label":"Performance","data":[48],"backgroundColor":"rgba(255, 99, 132, 0.2)","borderColor":"rgba(255, 99, 132, 1)","borderWidth":1},{"label":"Accessibility","data":[55],"backgroundColor":"rgba(54, 162, 235, 0.2)","borderColor":"rgba(54, 162, 235, 1)","borderWidth":1},{"label":"SEO","data":[83],"backgroundColor":"rgba(255, 206, 86, 0.2)","borderColor":"rgba(255, 206, 86, 1)","borderWidth":1},{"label":"Best Practices","data":[82],"backgroundColor":"rgba(75, 192, 192, 0.2)","borderColor":"rgba(75, 192, 192, 1)","borderWidth":1}]},
             options: {
                 responsive: true,
                 maintainAspectRatio: false,

@@ -1,41 +1,25 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-const BASE_DIR = 'test-output';
+const BASE_DIR = 'lighthouse-test-output';
 
 export function formatDateToIST(dateString) {
+  if (!dateString) return 'N/A';
+  
   try {
-    if (!dateString) {
-      return 'No Date';
-    }
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      return 'Invalid Date';
-    }
+    if (isNaN(date.getTime())) return 'Invalid Date';
 
     const options = {
       timeZone: 'Asia/Kolkata',
-      day: 'numeric',
+      day: '2-digit',
       month: 'short',
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
     };
   
-    const formatter = new Intl.DateTimeFormat('en-IN', options);
-    const parts = formatter.formatToParts(date);
-    
-    const day = parts.find(part => part.type === 'day')?.value;
-    const month = parts.find(part => part.type === 'month')?.value;
-    const hour = parts.find(part => part.type === 'hour')?.value;
-    const minute = parts.find(part => part.type === 'minute')?.value;
-    const dayPeriod = parts.find(part => part.type === 'dayPeriod')?.value;
-
-    if (!day || !month || !hour || !minute || !dayPeriod) {
-      return 'Incomplete Date';
-    }
-
-    return `${day}${month}_${hour}:${minute}${dayPeriod.toLowerCase()}`;
+    return new Intl.DateTimeFormat('en-IN', options).format(date);
   } catch (error) {
     console.error('Error formatting date:', error);
     return 'Date Error';
@@ -62,7 +46,7 @@ export async function getReportDir(url) {
 export async function storeReport(url, scores, fullReport) {
   const reportDir = await getReportDir(url);
   const timestamp = new Date().toISOString();
-  const filename = `report-${timestamp}.json`;
+  const filename = `report-${timestamp.replace(/:/g, '-')}.json`;
 
   await fs.mkdir(path.join(reportDir, 'json'), { recursive: true });
   await fs.writeFile(
@@ -79,14 +63,28 @@ export async function getLatestReports(url, limit = 5) {
     const files = await fs.readdir(jsonDir);
     const reports = await Promise.all(
       files.map(async (file) => {
-        const content = await fs.readFile(path.join(jsonDir, file), 'utf-8');
-        return JSON.parse(content);
+        try {
+          const content = await fs.readFile(path.join(jsonDir, file), 'utf-8');
+          const report = JSON.parse(content);
+          // Always use the timestamp from the filename
+          const filenameTimestamp = file.match(/report-(.+)\.json/)[1].replace(/-/g, ':');
+          return { ...report, timestamp: filenameTimestamp };
+        } catch (error) {
+          console.error(`Error reading file ${file}:`, error);
+          return null;
+        }
       })
     );
 
-    reports.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    // Filter out invalid reports (those with all zero scores or invalid dates)
+    const validReports = reports.filter(report => 
+      report && report.scores && 
+      Object.values(report.scores).some(score => score > 0) &&
+      !isNaN(new Date(report.timestamp).getTime())
+    );
 
-    return reports.slice(0, limit);
+    validReports.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    return validReports.slice(0, limit);
   } catch (error) {
     console.error('Error reading reports:', error);
     return [];
