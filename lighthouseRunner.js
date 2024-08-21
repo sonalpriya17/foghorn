@@ -2,11 +2,11 @@ import { launch } from 'chrome-launcher';
 import lighthouse from 'lighthouse';
 import { storeReport, getLatestReports } from './reportStorage.js';
 
-export async function runLighthouse(url = 'https://leetcode.com/', outputDir) {
+export async function runLighthouse(url = 'https://leetcode.com/', outputDir, chromeFlags = '--headless --no-sandbox') {
   let chrome;
   try {
     console.log('Launching Chrome...');
-    chrome = await launch({ chromeFlags: ['--headless'] });
+    chrome = await launch({ chromeFlags: chromeFlags.split(' ') });
     console.log('Chrome launched successfully');
 
     if (outputDir) {
@@ -16,7 +16,7 @@ export async function runLighthouse(url = 'https://leetcode.com/', outputDir) {
     const options = {
       logLevel: 'info',
       output: 'json',
-      onlyCategories: ['performance', 'accessibility', 'seo', 'best-practices'],
+      onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
       port: chrome.port,
     };
 
