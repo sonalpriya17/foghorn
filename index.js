@@ -9,7 +9,8 @@ const program = new Command();
 program
   .version('1.0.0')
   .description('Foghorn: Analyze Lighthouse reports and generate insights')
-  .option('-u, --url <type>', 'URL to analyze', 'https://leetcode.com/');
+  .option('-u, --url <type>', 'URL to analyze', 'https://leetcode.com/')
+  .option('-o, --output <directory>', 'Output directory for test reports', 'lighthouse-test-output');
 
 program.parse(process.argv);
 
@@ -18,7 +19,8 @@ const options = program.opts();
 async function main() {
   try {
     console.log('Running Lighthouse for:', options.url);
-    const { scores, fullReport, comparisonData } = await runLighthouse(options.url);
+    console.log('Output directory:', options.output);
+    const { scores, fullReport, comparisonData } = await runLighthouse(options.url, options.output);
     
     console.log('Lighthouse Report:');
     console.log(`Performance: ${scores.performance}`);
@@ -26,7 +28,7 @@ async function main() {
     console.log(`SEO: ${scores.seo}`);
     console.log(`Best Practices: ${scores.bestPractices}`);
 
-    const { htmlFilename, jsonFilename } = await generateReports(options.url, { scores, fullReport }, comparisonData);
+    const { htmlFilename, jsonFilename } = await generateReports(options.url, { scores, fullReport }, comparisonData, options.output);
     console.log(`\nHTML report generated: ${htmlFilename}`);
     console.log(`JSON report generated: ${jsonFilename}`);
   } catch (error) {

@@ -2,12 +2,16 @@ import { launch } from 'chrome-launcher';
 import lighthouse from 'lighthouse';
 import { storeReport, getLatestReports } from './reportStorage.js';
 
-export async function runLighthouse(url = 'https://leetcode.com/') {
+export async function runLighthouse(url = 'https://leetcode.com/', outputDir) {
   let chrome;
   try {
     console.log('Launching Chrome...');
     chrome = await launch({ chromeFlags: ['--headless'] });
     console.log('Chrome launched successfully');
+
+    if (outputDir) {
+      console.log(`Output directory: ${outputDir}`);
+    }
 
     const options = {
       logLevel: 'info',
@@ -34,8 +38,8 @@ export async function runLighthouse(url = 'https://leetcode.com/') {
 
     console.log('Lighthouse Scores:', scores);
 
-    await storeReport(url, scores, report);
-    const comparisonData = await getLatestReports(url);
+    await storeReport(url, scores, report, outputDir);
+    const comparisonData = await getLatestReports(url, 5, outputDir);
 
     return {
       scores,

@@ -59,14 +59,14 @@ function generateChartData(reports) {
   return { labels, datasets };
 }
 
-export async function generateReports(url, report) {
-  const reportDir = await getReportDir(url);
+export async function generateReports(url, report, comparisonData, customDir) {
+  const reportDir = await getReportDir(url, customDir);
   const timestamp = new Date().toISOString();
   const htmlFilename = path.join(reportDir, 'html', `report-${timestamp.replace(/:/g, '-')}.html`);
   const jsonFilename = path.join(reportDir, 'json', `report-${timestamp.replace(/:/g, '-')}.json`);
 
   // Get the 4 latest previous reports
-  const previousReports = await getLatestReports(url, 4);
+  const previousReports = await getLatestReports(url, 4, customDir);
   
   // If there are no previous reports, use the current report for comparison
   const allReports = previousReports.length > 0 

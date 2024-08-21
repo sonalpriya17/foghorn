@@ -1,8 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-const BASE_DIR = 'lighthouse-test-output';
-
 export function formatDateToIST(dateString) {
   if (!dateString) return 'N/A';
   
@@ -38,13 +36,17 @@ export function simplifyFolderName(url) {
   return folderName;
 }
 
-export async function getReportDir(url) {
-  const folderName = simplifyFolderName(url);
-  return path.join(BASE_DIR, folderName);
+export function getBaseDir(customDir) {
+  return customDir || 'lighthouse-test-output';
 }
 
-export async function storeReport(url, scores, fullReport) {
-  const reportDir = await getReportDir(url);
+export async function getReportDir(url, customDir) {
+  const folderName = simplifyFolderName(url);
+  return path.join(getBaseDir(customDir), folderName);
+}
+
+export async function storeReport(url, scores, fullReport, customDir) {
+  const reportDir = await getReportDir(url, customDir);
   const timestamp = new Date().toISOString();
   const filename = `report-${timestamp.replace(/:/g, '-')}.json`;
 
@@ -55,8 +57,8 @@ export async function storeReport(url, scores, fullReport) {
   );
 }
 
-export async function getLatestReports(url, limit = 5) {
-  const reportDir = await getReportDir(url);
+export async function getLatestReports(url, limit = 5, customDir) {
+  const reportDir = await getReportDir(url, customDir);
   const jsonDir = path.join(reportDir, 'json');
 
   try {
